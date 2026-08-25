@@ -3,10 +3,14 @@ import java.util.*;
 import java.io.*;
 
 public class User {
+	private String username;
+	private String password;
+
 
 	// Creates a User with empty name and password.
-	public User() {
-
+	public User(string username, string password) {
+		this.username = username;
+		this.password = password;
 	}
 
 	// Creates a User with given username and password.
