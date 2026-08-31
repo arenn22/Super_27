@@ -3,15 +3,26 @@ import java.util.*;
 import java.io.*;
 
 public class Message {
+	private String author;
+	private String subject;
+	private String body;
+	private int id;
+	private ArrayList<Message> childList = new ArrayList<Message>();
 
 	// Default Constructor
 	public Message() {
-		
+		this.author = "";
+		this.subject = "";
+		this.body = "";
+		this.id = 0;
 	}
 	
 	// Parameterized Constructor
 	public Message(String auth, String subj, String bod, int i) {
-		
+		this.author = auth;
+		this.subject = subj;
+		this.body = bod;
+		this.id = i;
 	}
 
 	// This function is responsbile for printing the Message
@@ -29,22 +40,22 @@ public class Message {
 
 	// Default function for inheritance
 	public boolean isReply(){
-		
+		return false;
 	}
 
 	// Returns the subject String
 	public String getSubject(){
-		
+		return this.subject;
 	} 
 
 	// Returns the ID
 	public int getId(){
-		
+		return this.id;
 	}
 
 	// Adds a child pointer to the parent's childList.
 	public void addChild(Message child){
-		
+		this.childList.add(child);
 	}
 
 }
