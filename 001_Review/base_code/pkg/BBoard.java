@@ -4,22 +4,43 @@ import java.io.*;
 
 public class BBoard {		// This is your main file that connects all classes.
 	// Think about what your global variables need to be.
+	private String title;
+	private ArrayList<User> userList = new ArrayList<User>();
+	private ArrayList<Message> messageList = new ArrayList<Message>();
+	private User currentUser;
+
 
 	// Default constructor that creates a board with a defaulttitle, empty user and message lists,
 	// and no current user
 	public BBoard() {
-		
+		this.title = "Default Board";
+		this.userList = new ArrayList<User>();
+		this.messageList = new ArrayList<Message>();
+		this.currentUser = null;
 	}
 
 	// Same as the default constructor except it sets the title of the board
 	public BBoard(String ttl) {	
+		this.title = ttl;
+		this.userList = new ArrayList<User>();
+		this.messageList = new ArrayList<Message>();
+		this.currentUser = null;
 	}
 
 	// Gets a filename of a file that stores the user info in a given format (users.txt)
 	// Opens and reads the file of all authorized users and passwords
 	// Constructs a User object from each name/password pair, and populates the userList ArrayList.
 	public void loadUsers(String inputFile) throws FileNotFoundException {
+		Scanner scanner = new Scanner(new File(inputFile));
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
 
+			String user = line.split(" ")[0];
+			String pass = line.split(" ")[1];
+
+			userList.add(new User(user, pass));
+		}
+		scanner.close();
 	}
 
 	// Asks for and validates a user/password. 
@@ -28,7 +49,27 @@ public class BBoard {		// This is your main file that connects all classes.
 	// If not, it will keep asking until a match is found or the user types 'q' or 'Q' as username to quit
 	// When the users chooses to quit, sayu "Bye!" and return from the login function
 	public void login(){
+		while (!(currentUser == null)) {
+			Scanner scanner = new Scanner(System.in);
 
+			System.out.print("Enter your username ('Q' or 'q' to quit): ");
+			String username = scanner.nextLine();
+
+			if (username.equalsIgnoreCase("q")) {
+				System.out.println("Bye!");
+				return;
+			}
+
+			System.out.print("Enter your password: ");
+			String password = scanner.nextLine();
+
+			for (User user : userList) {
+				if (user.check(username, password)) {
+					currentUser = user;
+					break;
+				}
+			}
+		}
 	}
 	
 	// Contains main loop of Bulletin Board
