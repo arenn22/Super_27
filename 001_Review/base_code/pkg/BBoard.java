@@ -83,14 +83,48 @@ public class BBoard {		// This is your main file that connects all classes.
 	// Q/q should reset the currentUser to 0 and then end return
 	// Note: if login() did not set a valid currentUser, function must immediately return without showing menu
 	public void run(){
+		if (currentUser == null) {
+			return;
+		}
 
+		Scanner scanner = new Scanner(System.in);
+
+		while (currentUser != null) {
+			System.out.println("Menu:\n - Display Messages ('D' or 'd')\n - Add New Topic ('N' or 'n')\n - Add Reply ('R' or 'r')\n - Change Password ('P' or 'p')\n - Quit ('Q' or 'q')");
+			System.out.print("Choose an action: ");
+			String choice = scanner.nextLine();
+
+			switch (choice.toLowerCase()) {
+				case "d":
+					display();
+					break;
+				case "n":
+					addTopic();
+					break;
+				case "r":
+					addReply();
+					break;
+				case "p":
+					setPassword();
+					break;
+				case "q":
+					currentUser = null;
+					return;
+				default:
+					System.out.println("Wrong Input - Please enter another.");
+			}
+		}
 	}
 
 	// Traverse the BBoard's message list, and invote the print function on Topic objects ONLY
 	// It will then be the responsibility of the Topic object to invoke the print function recursively on its own replies
 	// The BBoard display function will ignore all reply objects in its message list
 	private void display(){
-
+		for (Message message : messageList) {
+			if (message instanceof Topic) {
+				message.print(0);
+			}
+		}
 	}
 
 
@@ -109,7 +143,15 @@ public class BBoard {		// This is your main file that connects all classes.
 	// Once the Topic has been constructed, add it to the messageList
 	// This should invoke your inheritance of Topic to Message
 	private void addTopic(){
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Subject: ");
+		String subject = scanner.nextLine();
+		System.out.print("Body: ");
+		String body = scanner.nextLine();
 
+		Topic topic = new Topic(currentUser.getUsername(), subject, body, messageList.size() + 1);
+
+		messageList.add(topic);
 	}
 
 	// This function asks the user to enter a reply to a given Message (which may be either a Topic or a Reply, so we can handle nested replies).
@@ -142,7 +184,29 @@ public class BBoard {		// This is your main file that connects all classes.
 	// Finally, push back the Message created to the BBoard's messageList. 
 	// Note: When the user chooses to return to the menu, do not call run() again - just return fro mthis addReply function. 
 	private void addReply(){
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Enter Message ID (-1 for Menu): ");
+		int id = scanner.nextInt();
+		scanner.nextLine();
 
+		if (id == -1) {
+			return;
+		}
+
+		if (id < 0 || id >= messageList.size()) {
+			System.out.println("Invalid Message ID!");
+			addReply();
+			return;
+		}
+
+		Message parent = messageList.get(id - 1);
+
+		System.out.print("Body: ");
+		String body = scanner.nextLine();
+
+		Reply reply = new Reply(currentUser.getUsername(), "Re: " + parent.getSubject(), body, messageList.size() + 1);
+		messageList.add(reply);
+		parent.addChild(reply);
 	}
 
 	// This function allows the user to change their current password.
@@ -153,7 +217,25 @@ public class BBoard {		// This is your main file that connects all classes.
 	// Any password is allowed except 'c' or 'C' for allowing the user to quit out to the menu. 
 	// Once entered, the user will be told "Password Accepted." and returned to the menu.
 	private void setPassword(){
-		
+		Scanner scanner = new Scanner(System.in);
+		while (true) {
+			System.out.print("Enter old password ('C' or 'c' to cancel): ");
+			String oldPassword = scanner.nextLine();
+
+			if (oldPassword.equalsIgnoreCase("c")) {
+				return;
+			}
+
+			if (currentUser.check(currentUser.getUsername(), oldPassword)) {
+				System.out.print("Please enter your new password: ");
+				String newPassword = scanner.nextLine();
+				currentUser.setPassword(oldPassword, newPassword);
+				System.out.println("Password Accepted.");
+				return;
+			} else {
+				System.out.println("Invalid Password, please re-enter.");
+			}
+		}
 	}
 
 }
