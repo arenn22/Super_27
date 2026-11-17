@@ -8,92 +8,72 @@ import java.lang.*;
 
 class main {
 	public static void main(String args[]) {
-		List<DayBirth> dayBirths = readCSV("births.csv");
+		int [] times = {10, 100, 1000, 10000, 100000, 1000000, 10000000};
+		int [] nums = new int[100];
+		Stopwatch s = new Stopwatch();
 
-		List<DayBirth> males = new ArrayList<>();
-		List<DayBirth> females = new ArrayList<>();
-
-		for (DayBirth d : dayBirths) {
-			if (d.getGender() == 'M') males.add(d);
-            else if (d.getGender() == 'F') females.add(d);
+		System.out.println("-------------------Test-------------------");
+		System.out.println("");
+		for(int i : times){
+			System.out.println("Interval: " + i);
+			s.start();	
+			nums = new int[i];
+			//  Put your method between these two comments
+			MergeSort(nums, 0, nums.length - 1);
+			//
+			s.stop();
+			System.out.println("Duration: " + Stopwatch.readable(s.read()));
+			System.out.println("");
 		}
-
-		MergeSort(males, 0, males.size() - 1);
-		MergeSort(females, 0, females.size() - 1);
-
-		writeCSV("males_sorted.csv", males);
-		writeCSV("females_sorted.csv", females);
 	}
 
-	private static List<DayBirth> readCSV(String fileName) {
-		List<DayBirth> dayBirths = new ArrayList<>();
-
-		try (Scanner scanner = new Scanner(new java.io.File(fileName))) {
-			if (scanner.hasNextLine()) scanner.nextLine();
-
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine().trim();
-
-				if (line.isEmpty()) continue;
-
-				dayBirths.add(DayBirth.fromCSV(line));
-			}
-		} catch (java.io.FileNotFoundException e) {
-			System.err.println("File not found: " + fileName);
-		}
-
-		return dayBirths;
-	}
-
-	private static void writeCSV(String fileName, List<DayBirth> dayBirths) {
-        try (PrintWriter out = new PrintWriter(fileName)) {
-            out.println("year,month,day,gender,births");
-			
-            for (DayBirth d : dayBirths) {
-				out.println(d.toString());
-            }
-        } catch (IOException e) {
-            System.err.println("Could not write " + fileName + ": " + e.getMessage());
-        }
-	}
-
-	private static void MergeSort(List<DayBirth> list, int left, int right) {
+	public static void MergeSort(int[] nums, int left, int right) {
 		if (left < right) {
-			int mid = (left + right) / 2;
+			int mid = left + (right - left) / 2;
 
-			MergeSort(list, left, mid);
-			MergeSort(list, mid + 1, right);
+			MergeSort(nums, left, mid);
+			MergeSort(nums, mid + 1, right);
 
-			merge(list, left, mid, right);
+			merge(nums, left, mid, right);
 		}
 	}
 
-	private static void merge(List<DayBirth> list, int left, int mid, int right) {
-		List<DayBirth> L = new ArrayList<>(list.subList(left, mid + 1));
-		List<DayBirth> R = new ArrayList<>(list.subList(mid + 1, right + 1));
+	public static void merge(int[] nums, int left, int mid, int right) {
+		int n1 = mid - left + 1;
+		int n2 = right - mid;
 
+		int[] L = new int[n1];
+		int[] R = new int[n2];
+
+		for (int i = 0; i < n1; ++i) {
+			L[i] = nums[left + i];
+		}
+
+		for (int j = 0; j < n2; ++j) {
+			R[j] = nums[mid + 1 + j];
+		}
+		
 		int i = 0, j = 0;
 		int k = left;
-
-		while (i < L.size() && j < R.size()) {
-			if (L.get(i).getBirths() <= R.get(j).getBirths()) {
-				list.set(k, L.get(i));
+		while (i < n1 && j < n2) {
+			if (L[i] <= R[j]) {
+				nums[k] = L[i];
 				i++;
 			} else {
-				list.set(k, R.get(j));
+				nums[k] = R[j];
 				j++;
 			}
 			k++;
 		}
 
-		while (i < L.size()) {
-			list.set(k, L.get(i));
+		while (i < n1) {
+			nums[k] = L[i];
 			i++;
 			k++;
 		}
 
-		while (j < R.size()) {
-			list.set(k, R.get(j));
+		while (j < n2) {
+			nums[k] = R[j];
 			j++;
 			k++;
 		}
